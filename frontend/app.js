@@ -76,9 +76,13 @@ async function handleRewireClick() {
 
     try {
         // 4. เรียก Backend API
+        const authToken = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/api/rewire`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
             body: JSON.stringify({
                 asIsWorkflow: asIs,
                 pastePoint: paste,
@@ -119,9 +123,13 @@ async function handleDraftWorkflowClick(e) {
     errorMessage.style.display = 'none';
 
     try {
+        const authToken = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/api/draft-workflow`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
             body: JSON.stringify({ prompt })
         });
 
@@ -156,9 +164,13 @@ async function handleSuggestPastePointClick(e) {
     errorMessage.style.display = 'none';
 
     try {
+        const authToken = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/api/suggest-paste-point`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
             body: JSON.stringify({ workflow })
         });
 
