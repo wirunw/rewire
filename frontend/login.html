@@ -129,8 +129,135 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="auth.js"></script>
+    <!-- Firebase SDK & Authentication -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBCWsBFzpIy9elYHL58rFWvWnKwXVZRDq8",
+            authDomain: "rewire-58dd8.firebaseapp.com",
+            projectId: "rewire-58dd8",
+            storageBucket: "rewire-58dd8.firebasestorage.app",
+            messagingSenderId: "463138952619",
+            appId: "1:463136952619:web:54b6e5458b3440e95b356e",
+            measurementId: "G-MYZC591L6T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const errorMessage = document.getElementById('error-message');
+        const loader = document.getElementById('loader');
+
+        // Tab Switching
+        loginTab.addEventListener('click', () => switchTab('login'));
+        registerTab.addEventListener('click', () => switchTab('register'));
+
+        function switchTab(tab) {
+            if (tab === 'login') {
+                loginTab.classList.add('bg-white', 'text-blue-600', 'shadow');
+                loginTab.classList.remove('text-gray-600');
+                registerTab.classList.remove('bg-white', 'text-blue-600', 'shadow');
+                registerTab.classList.add('text-gray-600');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerTab.classList.add('bg-white', 'text-blue-600', 'shadow');
+                registerTab.classList.remove('text-gray-600');
+                loginTab.classList.remove('bg-white', 'text-blue-600', 'shadow');
+                loginTab.classList.add('text-gray-600');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+            hideError();
+        }
+
+        // Login with Email/Password
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            showLoader();
+            hideError();
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html';
+            } catch (error) {
+                hideLoader();
+                showError(getErrorMessage(error.code));
+            }
+        });
+
+        // Register with Email/Password
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            if (password.length < 6) {
+                showError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+                return;
+            }
+            showLoader();
+            hideError();
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                window.location.href = 'index.html';
+            } catch (error) {
+                hideLoader();
+                showError(getErrorMessage(error.code));
+            }
+        });
+
+        // Google Login
+        googleLoginBtn.addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            showLoader();
+            hideError();
+            try {
+                await signInWithPopup(auth, provider);
+                window.location.href = 'index.html';
+            } catch (error) {
+                hideLoader();
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showError(getErrorMessage(error.code));
+                }
+            }
+        });
+
+        // Helper Functions
+        function showLoader() { loader.classList.remove('hidden'); }
+        function hideLoader() { loader.classList.add('hidden'); }
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+        function hideError() { errorMessage.classList.add('hidden'); }
+        function getErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/email-already-in-use': 'อีเมลนี้ถูกใช้งานแล้ว',
+                'auth/invalid-email': 'รูปแบบอีเมลไม่ถูกต้อง',
+                'auth/weak-password': 'รหัสผ่านไม่ปลอดภัยเพียงพอ',
+                'auth/user-not-found': 'ไม่พบบัญชีผู้ใช้นี้',
+                'auth/wrong-password': 'รหัสผ่านไม่ถูกต้อง',
+                'auth/too-many-requests': 'คำขอมากเกินไป กรุณาลองใหม่ภายหลัง',
+            };
+            return errorMessages[errorCode] || 'เกิดข้อผิดพลาด: ' + errorCode;
+        }
+
+        // Check if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.href = 'index.html';
+        });
+    </script>
 </body>
 </html>
