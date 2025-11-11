@@ -73,6 +73,7 @@ Backend จะทำงานที่ `http://localhost:3000`
 เปิดไฟล์ `frontend/index.html` ในเบราว์เซอร์ หรือใช้ live server
 
 หรือเปิดด้วย VS Code Simple Browser:
+
 - คลิกขวาที่ไฟล์ `index.html`
 - เลือก "Open with Live Server" (ถ้าติดตั้ง Live Server extension)
 
