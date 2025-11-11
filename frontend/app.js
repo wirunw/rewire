@@ -139,7 +139,15 @@ async function handleDraftWorkflowClick(e) {
         }
 
         const data = await response.json();
-        asIsWorkflow.value = data.text;
+        
+        // Format workflow as text for textarea
+        let workflowText = '';
+        data.workflow.forEach(item => {
+            workflowText += `ขั้นตอนที่ ${item.step}: ${item.title}\n`;
+            workflowText += `รายละเอียด: ${item.description}\n\n`;
+        });
+        
+        asIsWorkflow.value = workflowText.trim();
         workflowHelperPrompt.value = "";
     } catch (error) {
         console.error("Error drafting workflow:", error);
@@ -180,7 +188,15 @@ async function handleSuggestPastePointClick(e) {
         }
 
         const data = await response.json();
-        pastePoint.value = data.text;
+        
+        // Format paste points as text for textarea
+        let pastePointText = '';
+        data.paste_points.forEach((item, index) => {
+            pastePointText += `${index + 1}. ${item.point}\n`;
+            pastePointText += `   ${item.description}\n\n`;
+        });
+        
+        pastePoint.value = pastePointText.trim();
     } catch (error) {
         console.error("Error suggesting paste point:", error);
         showError("เกิดข้อผิดพลาดในการแนะนำ Paste-Point: " + error.message);

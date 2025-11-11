@@ -52,22 +52,13 @@ const SYSTEM_PROMPT_REWIRE = `
 * ให้คำตอบในรูปแบบ JSON ที่เข้มงวด (Strict JSON format) เท่านั้นตาม Schema ที่กำหนด
 `;
 
-const SYSTEM_PROMPT_WORKFLOW = `คุณคือผู้ช่วยที่เชี่ยวชาญการทำงาน ภารกิจของคุณคือร่างขั้นตอนการทำงาน (workflow) 4-5 ขั้นตอนสำหรับงานที่กำหนดมาให้ ตอบเป็นภาษาไทยเท่านั้น
+const SYSTEM_PROMPT_WORKFLOW = `คุณคือผู้ช่วยที่เชี่ยวชาญการทำงาน ภารกิจของคุณคือร่างขั้นตอนการทำงาน (workflow) 4-6 ขั้นตอนสำหรับงานที่กำหนดมาให้ ตอบเป็นภาษาไทยเท่านั้น
 
-**สำคัญมาก:** ห้ามใช้ตาราง Markdown (ห้ามใช้ตัวอักษร | หรือ ---)
-ให้ใช้รูปแบบข้อความธรรมดา (plain text) ที่อ่านง่าย โดยมีโครงสร้างดังนี้:
+ให้คำตอบในรูปแบบ JSON ที่เข้มงวด (Strict JSON format) เท่านั้นตาม Schema ที่กำหนด`;
 
-ขั้นตอนที่ 1: [ชื่อขั้นตอน]
-รายละเอียด: [คำอธิบายขั้นตอนนี้]
+const SYSTEM_PROMPT_PASTE_POINT = `คุณคือที่ปรึกษา AI ภารกิจของคุณคือดู workflow ที่ให้มา แล้วแนะนำ 'จุดที่แปะ AI' (Paste-Point) ที่พบบ่อยที่สุด 2-4 จุด พร้อมอธิบายสั้นๆ ว่าคนมักใช้ AI ทำอะไรในขั้นตอนนี้ ตอบเป็นภาษาไทยเท่านั้น
 
-ขั้นตอนที่ 2: [ชื่อขั้นตอน]
-รายละเอียด: [คำอธิบายขั้นตอนนี้]
-
-(ทำซ้ำจนครบ 4-5 ขั้นตอน)`;
-
-const SYSTEM_PROMPT_PASTE_POINT = `คุณคือที่ปรึกษา AI ภารกิจของคุณคือดู workflow ที่ให้มา แล้วแนะนำ 'จุดที่แปะ AI' (Paste-Point) ที่พบบ่อยที่สุด อธิบายสั้นๆ ในประโยคเดียวว่าคนมักใช้ AI ทำอะไรในขั้นตอนนี้ ตอบเป็นภาษาไทยเท่านั้น
-
-**สำคัญ:** ห้ามใช้ตาราง Markdown หรือสัญลักษณ์ |`;
+ให้คำตอบในรูปแบบ JSON ที่เข้มงวด (Strict JSON format) เท่านั้นตาม Schema ที่กำหนด`;
 
 // Response Schema
 const RESPONSE_SCHEMA = {
@@ -120,6 +111,47 @@ const RESPONSE_SCHEMA = {
     },
     required: ["title", "new_workflow", "key_changes", "action_plan"],
     propertyOrdering: ["title", "new_workflow", "key_changes", "action_plan"]
+};
+
+const WORKFLOW_SCHEMA = {
+    type: "OBJECT",
+    properties: {
+        "workflow": {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    "step": { "type": "NUMBER" },
+                    "title": { "type": "STRING" },
+                    "description": { "type": "STRING" }
+                },
+                required: ["step", "title", "description"],
+                propertyOrdering: ["step", "title", "description"]
+            }
+        }
+    },
+    required: ["workflow"],
+    propertyOrdering: ["workflow"]
+};
+
+const PASTE_POINT_SCHEMA = {
+    type: "OBJECT",
+    properties: {
+        "paste_points": {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    "point": { "type": "STRING" },
+                    "description": { "type": "STRING" }
+                },
+                required: ["point", "description"],
+                propertyOrdering: ["point", "description"]
+            }
+        }
+    },
+    required: ["paste_points"],
+    propertyOrdering: ["paste_points"]
 };
 
 // Helper: เรียก Gemini API พร้อม Exponential Backoff
@@ -226,9 +258,10 @@ app.post('/api/draft-workflow', async (req, res) => {
             });
         }
 
-        const responseText = await callGeminiAPI(prompt, SYSTEM_PROMPT_WORKFLOW);
+        const responseText = await callGeminiAPI(prompt, SYSTEM_PROMPT_WORKFLOW, WORKFLOW_SCHEMA);
+        const data = JSON.parse(responseText);
         
-        res.json({ text: responseText });
+        res.json(data);
     } catch (error) {
         console.error('Error in /api/draft-workflow:', error);
         res.status(500).json({ 
@@ -248,9 +281,10 @@ app.post('/api/suggest-paste-point', async (req, res) => {
             });
         }
 
-        const responseText = await callGeminiAPI(workflow, SYSTEM_PROMPT_PASTE_POINT);
+        const responseText = await callGeminiAPI(workflow, SYSTEM_PROMPT_PASTE_POINT, PASTE_POINT_SCHEMA);
+        const data = JSON.parse(responseText);
         
-        res.json({ text: responseText });
+        res.json(data);
     } catch (error) {
         console.error('Error in /api/suggest-paste-point:', error);
         res.status(500).json({ 
