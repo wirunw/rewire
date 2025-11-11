@@ -10,7 +10,7 @@ Vercel รองรับ Serverless Functions สามารถรัน Node.
 
 สร้างโฟลเดอร์ `api` สำหรับ Serverless Functions:
 
-```
+```text
 rewire/
 ├── api/              # Backend Serverless Functions
 │   └── (จะสร้างใหม่)
@@ -61,16 +61,19 @@ rewire/
 **สำหรับโปรเจคนี้ ผมแนะนำ:**
 
 ### ✅ ตัวเลือกที่ 1: Railway + Netlify
+
 - **ง่ายที่สุด** - ไม่ต้องแก้ code
 - Deploy ได้เลย
 - ฟรี
 
 ### ✅ ตัวเลือกที่ 2: Render + Netlify
+
 - ทางเลือกสำรอง
 - ฟรีเหมือนกัน
 - แต่ service จะหลับเมื่อไม่ได้ใช้
 
 ### ⚠️ ตัวเลือกที่ 3: Vercel Full Stack
+
 - ต้องแก้ code backend ใหม่ทั้งหมด
 - เหมาะสำหรับคนที่มีประสบการณ์
 - ไม่แนะนำถ้าเพิ่งเริ่มต้น
