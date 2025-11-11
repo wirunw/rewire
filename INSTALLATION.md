@@ -121,6 +121,7 @@ npm run dev
 #### เปลี่ยน Backend URL
 
 แก้ไขในไฟล์ `frontend/app.js`:
+
 ```javascript
 const API_BASE_URL = 'http://your-backend-url.com';
 ```
@@ -128,13 +129,15 @@ const API_BASE_URL = 'http://your-backend-url.com';
 #### เปลี่ยน Port
 
 แก้ไขในไฟล์ `backend/.env`:
-```
+
+```env
 PORT=5000
 ```
 
 #### ปรับแต่ง CORS
 
 แก้ไขในไฟล์ `backend/server.js`:
+
 ```javascript
 app.use(cors({
   origin: 'https://your-frontend-domain.com'
