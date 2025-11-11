@@ -1,5 +1,5 @@
 // ⚠️ ตั้งค่า Backend URL ตามที่คุณ deploy
-const API_BASE_URL = 'http://localhost:3000'; // เปลี่ยนตามที่ backend ของคุณทำงาน
+const API_BASE_URL = 'https://rewire-production.up.railway.app'; // Railway Production URL
 
 // --- DOM Elements ---
 const button = document.getElementById('rewire-button');
